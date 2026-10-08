@@ -1,0 +1,5 @@
+---
+# handlers file for roles/kubernetes_node
+- name: Reload sysctl
+  ansible.builtin.command:
+    cmd: sysctl --system

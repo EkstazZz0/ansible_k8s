@@ -1,0 +1,45 @@
+---
+# tasks file for roles/load_balancer
+- name: Update apt cache index
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install HAProxy
+  ansible.builtin.apt:
+    name: "haproxy={{ haproxy_version }}"
+    state: present
+
+- name: Install Keepalived
+  ansible.builtin.apt:
+    name: "keepalived={{ keepalived_version }}"
+    state: present
+
+- name: Deploy HAProxy configuration
+  ansible.builtin.template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart HAProxy
+
+- name: Deploy Keepalived configuration
+  ansible.builtin.template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart Keepalived
+
+- name: Ensure HAProxy is enabled and started
+  ansible.builtin.systemd:
+    name: haproxy
+    enabled: true
+    state: started
+
+- name: Ensure Keepalived is enabled and started
+  ansible.builtin.systemd:
+    name: keepalived
+    enabled: true
+    state: started
